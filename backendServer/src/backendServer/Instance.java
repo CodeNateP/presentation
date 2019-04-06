@@ -50,7 +50,7 @@ public class Instance extends Thread{
 				}else if("login".equalsIgnoreCase(cmd)) {
 					clientLogin(oStream, part);
 				}else if("msg".equalsIgnoreCase(cmd)){
-					String[] tokensMsg = StringUtils.split(line, null, 3);
+					String[] tokensMsg = StringUtils.split(line, null, 2);
 					handleMessage(tokensMsg);
 					}else {
 					String msg = "unknown " + cmd + "\n";
@@ -64,27 +64,24 @@ public class Instance extends Thread{
 		oStream.close();
 	}
 	private void handleMessage(String[] tokens) throws IOException {
-		String sendTo = tokens[1];
-		String body = tokens[2];
+		String body = tokens[1];
 		
-		List<Instance> workerList = server.getWorkerList();
-		for(Instance tom : workerList) {
-				if (sendTo.equalsIgnoreCase(tom.getLogin())) {
+		List<Instance> instanceList = server.getinstanceList();
+		for(Instance client : instanceList) {
 					//compiles message to that user
 					String outMsg = "msg " + username + " " + body + "\n";
 					//sends to outMsg method
-					tom.send(outMsg);
-				}	
+					client.send(outMsg);
 		}
 		
 	}
 	private void handleLogoff() throws IOException{
-		List<Instance> workerList = server.getWorkerList();
+		List<Instance> instanceList = server.getinstanceList();
 		
 		String onLineMsg = "Offline " + username + "\n";
-		for(Instance tom : workerList) {
-			if (!username.equals(tom.getLogin())) {
-				tom.send(onLineMsg);
+		for(Instance client : instanceList) {
+			if (!username.equals(client.getLogin())) {
+				client.send(onLineMsg);
 			}
 		}
 		
@@ -107,9 +104,9 @@ public class Instance extends Thread{
 				this.username = login;
 				System.out.println("User logged in: " + login);
 				
-				List<Instance> workerList = server.getWorkerList();
+				List<Instance> instanceList = server.getinstanceList();
 				
-				for(Instance client : workerList) {
+				for(Instance client : instanceList) {
 					if (client.getLogin() != null) {
 						if (!login.equals(client.getLogin())) {
 							String msg2 = "\nOnline " + client.getLogin() + "\n";
@@ -118,7 +115,7 @@ public class Instance extends Thread{
 					}
 				}
 				String onLineMsg = "online " + login + "\n";
-				for(Instance client : workerList) {
+				for(Instance client : instanceList) {
 					if (!login.equals(client.getLogin())) {
 						client.send(onLineMsg);
 					}
