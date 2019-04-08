@@ -44,13 +44,13 @@ public class Instance extends Thread{
 			String[] part = StringUtils.split(line);
 			if(part !=null && part.length > 0) {
 				String cmd = part[0];
-				if ("logoff".equalsIgnoreCase(cmd)) {
+				if (cmd.equals("logoff")) {
 					handleLogoff();
 					break;
-				}else if("login".equalsIgnoreCase(cmd)) {
+				}else if(cmd.equals("login")) {
 					clientLogin(oStream, part);
-				}else if("msg".equalsIgnoreCase(cmd)){
-					String[] tokensMsg = StringUtils.split(line, null, 2);
+				}else if(cmd.equals("msg")){
+					String[] tokensMsg = StringUtils.split(line, null, 3);
 					handleMessage(tokensMsg);
 					}else {
 					String msg = "unknown " + cmd + "\n";
@@ -63,17 +63,18 @@ public class Instance extends Thread{
 		}
 		oStream.close();
 	}
-	private void handleMessage(String[] tokens) throws IOException {
-		String body = tokens[1];
-		
-		List<Instance> instanceList = server.getinstanceList();
-		for(Instance client : instanceList) {
-					//compiles message to that user
-					String outMsg = "msg " + username + " " + body + "\n";
-					//sends to outMsg method
-					client.send(outMsg);
+	private void handleMessage(String[] part) throws IOException {
+		if (part.length == 3) {
+			String username = part[1];
+			String body = part[2];
+			List<Instance> instanceList = server.getinstanceList();
+			for(Instance client : instanceList) {
+						//compiles message to that user
+						String outMsg = "msg " + username + " " + body + "\n";
+						//sends to outMsg method
+						client.send(outMsg);
+			}
 		}
-		
 	}
 	private void handleLogoff() throws IOException{
 		List<Instance> instanceList = server.getinstanceList();
@@ -98,7 +99,7 @@ public class Instance extends Thread{
 			String login = parts[1];
 			String password = parts[2];
 			
-			if ((login.equals("admin") && password.equals("password")) || (login.equals("nathan") && password.equals("password"))) {
+			if ((login.equals("admin") && password.equals("password")) || (login.equals("nathan") && password.equals("password")) ||  (login.equals("nate") && password.equals("password"))) {
 				String msg = "ok login";
 				oStream.write(msg.getBytes());
 				this.username = login;
